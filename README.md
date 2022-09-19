@@ -1,7 +1,7 @@
 # bash-game-of-life
 This is my attempt at creating Conway's Game of Life in a bash shell script
 
-Problem:
+Problem (view this readme in raw so cell representation shows correctly):
   I have set 3 cells, after the matrix declaration and initialization as:
   | X X |
   | X   |
