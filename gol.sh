@@ -6,38 +6,42 @@ num_cols=8
 h=num_rows        # Width and Height minus 1 to avoid out-of-range indexing
 w=num_cols
 
-let num_cells=num_rows*num_cols
+let num_cells=num_rows*num_cols # Total number of cells (num_cells/num_rows = columns)
+
+# Set up matrix array with 0s
 for ((y=0 ; y<num_rows ; y++)) do
     for ((x=0 ; x<num_cols ; x++)) do
         matrix[$y,$x]=0
     done
 done
 
-# Set some cells
-# matrix[0,0]=1; matrix[0,0]=1
+# Set some cells to test
 matrix[1,1]=1; matrix[1,2]=1
 matrix[2,1]=1; matrix[2,2]=0
-matrix[3,3]=1
 
+# Function : Build next board state
 next_board () {
     echo "Print Next Board"
     declare -A new_board
-    # Create a new board that will replace the matrix board
-    neighbors=0
+    
+    # Initialize new_board with 0s
     for (( y=0 ; y<num_rows ; y++ )) do
         for (( x=0 ; x<num_cols ; x++ )) do
             new_board[$y,$x]=0  # Initialize with zeros
         done
     done
+    
+    neighbors=0
     # Iterate through each cell and locate neighbors
-    # TOP-LEFT
     for (( y=0 ; y<num_rows ; y++ )) do
         for (( x=0 ; x<num_cols ; x++ )) do
-            neighbors=0     # Reset neighbor cound for current cell
+            neighbors=0     # Reset neighbor count for current cell
+            
             echo Checking $x x $y
             # Check all eight sides for neighbors
                 # TOP-LEFT
             if [[ x > 0 && y > 0 ]] && [[ ${matrix[$(( y-1 )),$(( x-1 ))]} == 1 ]]; then
+                # debug print to help indicate when neighbor(s) are found
                 echo "TOP-LEFT"
                 ((neighbors=neighbors+1))   # Increment
             fi
@@ -107,11 +111,7 @@ next_board () {
     echo
 }
 
-# Print board details
-echo "Columns = " $(( num_cells / num_rows ))
-echo "Rows    = " $(( num_cells / num_cols ))
-
-# Spacing
+# Formatting for adding space between cells
 f1="%$((${#num_rows}+1))s"
 f2=" %9s"
 
@@ -123,9 +123,10 @@ for ((y=0 ; y<num_cols ; y++)) do
     echo
 done
 
+# Call function to generate the next board state
 next_board
 
-# Print the board
+# Print the updated board
 for ((y=0 ; y<num_cols ; y++)) do
     for ((x=0 ; x<num_rows ; x++)) do
         printf "$f1" ${matrix[$y,$x]}
