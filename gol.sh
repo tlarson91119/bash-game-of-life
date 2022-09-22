@@ -15,9 +15,19 @@ for ((y=0 ; y<num_rows ; y++)) do
     done
 done
 
+show_intro(){
+    # Introduction
+    echo " Game of Life"
+    echo " At the prompt ( >>> ):"
+    echo "            s - save to file"
+    echo "            q - quit"
+    echo "  blank enter - next generation"
+    echo
+}
+
+
 # Function : Build next board state
 next_board () {
-    echo "Print Next Board"
     declare -A new_board
     
     # Initialize new_board with 0s
@@ -27,7 +37,6 @@ next_board () {
         done
     done
     
-    neighbors=0
     # Iterate through each cell and locate neighbors
     for (( y=0 ; y<num_rows ; y++ )) do
         for (( x=0 ; x<num_cols ; x++ )) do
@@ -67,6 +76,7 @@ next_board () {
             if [[ x -gt 0 ]] && [[ ${matrix[$(( y )),$(( x-1 ))]} == 1 ]]; then
                 ((neighbors=neighbors+1))
             fi
+
             # Determine next state of the cell
             if [[ ${matrix[$y,$x]} == 1 ]] && [[ $neighbors == 3 || $neighbors == 2 ]]; then
                 # Cell is alive, has 2 or 3 neighbors (keep alive)
@@ -101,13 +111,11 @@ print_board(){
 
 # Save current board state to numbered txt file
 save_file(){
-    f1="%$((2))s"
-    # f2=" %9s"
-    prefix="board"
+    # prefix="board"
     number=0
     fname="board-01.txt"
     while [ -e "$fname" ]; do
-        printf -v fname '%s-%02d.txt' "$prefix" "$(( ++number ))"
+        printf -v fname '%s-%02d.txt' "board" "$(( ++number ))"
     done
     for ((y=0 ; y<num_rows ; y++)) do
         for ((x=0 ; x<num_cols ; x++)) do
@@ -119,22 +127,19 @@ save_file(){
     done   
 }
 
-# Introduction
-echo " Game of Life"
-echo " At the prompt ( >>> ):"
-echo "            s - save to file"
-echo "            q - quit"
-echo "  blank enter - next generation"
+show_intro
 
 read -p "How many generations? : " generations
 generation=0
 
 while [ $(( generation )) -lt $generations ]; do
-    echo Generation $(( generation++ + 1 ))
+    echo Generation $(( generation + 1 ))
     print_board
+    (( generation++ ))
     if [[ $generation == $generations ]]; then
         break
     else
+        
         read -p ">>> " input
         if [[ $input == "s" ]]; then
             save_file
@@ -142,7 +147,6 @@ while [ $(( generation )) -lt $generations ]; do
             break
         else
             next_board
-            # (( generation++ ))
         fi
     fi
 done
