@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 
 declare -A matrix
-(( num_rows=8 ))
-(( num_cols=8 ))
+(( num_rows=16 ))
+(( num_cols=16 ))
 (( h=num_rows ))        # Width and Height minus 1 to avoid out-of-range indexing
 (( w=num_cols ))
 
@@ -11,7 +11,7 @@ let num_cells=num_rows*num_cols # Total number of cells (num_cells/num_rows = co
 # Set up matrix array with 0s
 for ((y=0 ; y<num_rows ; y++)) do
     for ((x=0 ; x<num_cols ; x++)) do
-        matrix[$y,$x]=0
+        matrix[$y,$x]=$(( $RANDOM % 2 + 0 ))
     done
 done
 
@@ -90,29 +90,59 @@ next_board () {
     done
 }
 
-# Formatting for adding space between cells
-f1="%$((${#num_rows}+1))s"
-f2=" %9s"
-
-# Set some cells to test
-matrix[1,1]=1; matrix[1,2]=1
-matrix[2,1]=1; matrix[2,2]=0
-
-# Print board BEFORE update
-for ((y=0 ; y<num_cols ; y++)) do
-    for ((x=0 ; x<num_rows ; x++)) do
-        printf "$f1" ${matrix[$y,$x]}
+print_board(){
+    for ((y=0 ; y<num_rows ; y++)) do
+        for ((x=0 ; x<num_cols ; x++)) do
+            printf "%2s" ${matrix[$y,$x]}
+        done
+        echo
     done
-    echo
-done
+}
 
-# Call function to generate the next board state
-next_board
-
-# Print the Updated board
-for ((y=0 ; y<num_cols ; y++)) do
-    for ((x=0 ; x<num_rows ; x++)) do
-        printf "$f1" ${matrix[$y,$x]}
+# Save current board state to numbered txt file
+save_file(){
+    f1="%$((2))s"
+    # f2=" %9s"
+    prefix="board"
+    number=0
+    fname="board-01.txt"
+    while [ -e "$fname" ]; do
+        printf -v fname '%s-%02d.txt' "$prefix" "$(( ++number ))"
     done
-    echo
+    for ((y=0 ; y<num_rows ; y++)) do
+        for ((x=0 ; x<num_cols ; x++)) do
+            printf ${matrix[$y,$x]} >> $fname
+        done
+        if [[ $y -ne $num_rows-1 ]]; then
+            printf "\n" >> $fname
+        fi
+    done   
+}
+
+# Introduction
+echo " Game of Life"
+echo " At the prompt ( >>> ):"
+echo "            s - save to file"
+echo "            q - quit"
+echo "  blank enter - next generation"
+
+read -p "How many generations? : " generations
+generation=0
+
+while [ $(( generation )) -lt $generations ]; do
+    echo Generation $(( generation++ + 1 ))
+    print_board
+    if [[ $generation == $generations ]]; then
+        break
+    else
+        read -p ">>> " input
+        if [[ $input == "s" ]]; then
+            save_file
+        elif [[ $input == "q" ]]; then
+            break
+        else
+            next_board
+            # (( generation++ ))
+        fi
+    fi
 done
