@@ -18,6 +18,7 @@ done
 show_intro(){
     # Introduction
     echo " Game of Life"
+    echo "-------------------------------"
     echo " At the prompt ( >>> ):"
     echo "            s - save to file"
     echo "            q - quit"
